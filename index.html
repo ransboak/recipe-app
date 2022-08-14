@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My Recipe App</title>
+    <link rel="stylesheet" href="./css/style.css" />
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="input-field">
+        <input type="text" class="search-field" placeholder="Enter Dish name" />
+        <button class="search-btn" onclick="result()">Find Recipe</button>
+        <span class="text">Recipe..</span>
+      </div>
+
+      <div class="result-div"></div>
+    </div>
+
+    <script>
+      let resultdiv = document.querySelector(".result-div");
+      let url = "https://www.themealdb.com/api/json/v1/1/search.php?s=";
+
+      function result() {
+        var searchbar = document.querySelector(".search-field").value;
+
+        if (searchbar != "") {
+          document.querySelector(".container").style.height = "480px";
+          document.querySelector(".text").style.display = "none";
+          document.querySelector(".result-div").style.display = "block";
+        }
+        fetch(url + searchbar)
+          .then((response) => response.json())
+          .then((data) => {
+            let mymeal = data.meals[0];
+            let count = 1;
+            let ingredients = [];
+            for (let i in mymeal) {
+              let ingredient = "";
+              let measure = "";
+              if (i.startsWith("strIngredient") && mymeal[i]) {
+                ingredient = mymeal[i];
+                measure = mymeal[`strMeasure` + count];
+                count += 1;
+                ingredients.push(`${measure} ${ingredient}`);
+              }
+            }
+            resultdiv.innerHTML = `<div class="img-div">
+    <img src="${mymeal.strMealThumb}" alt="Loading...">
+  </div> 
+  <div class = "dish-name-area">
+          <p class="dish-name">${mymeal.strMeal}</p> 
+          <p class = "dish-area">${mymeal.strArea}</p> 
+          </div>
+  
+          <div class = "ingredient-div" >
+  
+          </div>
+          <div class="recipe-div">
+<button class="close-btn" onclick="closediv()">X</button>
+<pre id="instructions">
+   ${mymeal.strInstructions}     
+</pre>
+          </div>
+  <button class="get-recipe-btn" onclick="show()">VIEW RECIPE</button>
+        `;
+            let ingredientdiv = document.querySelector(".ingredient-div");
+            let parent = document.createElement("ul");
+
+            ingredients.forEach((i) => {
+              let child = document.createElement("li");
+              child.innerText = i;
+              parent.appendChild(child);
+              ingredientdiv.appendChild(parent);
+            });
+          });
+      }
+
+      function closediv() {
+        document.querySelector(".recipe-div").style.display = "none";
+        document.querySelector(".get-recipe-btn").style.display = "block";
+      }
+
+      function show() {
+        document.querySelector(".recipe-div").style.display = "block";
+        document.querySelector(".get-recipe-btn").style.display = "none";
+      }
+    </script>
+  </body>
+</html>
